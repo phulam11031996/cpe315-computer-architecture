@@ -1,9 +1,9 @@
 import java.util.HashMap;
 
-public class Instructions {
+public class Instruction {
     private HashMap<String, String> instructions = new HashMap<>();
 
-    public Instructions() {
+    public Instruction() {
         this.instructions.put("and", "000000");
         this.instructions.put("or", "000000");
         this.instructions.put("add", "000000");
@@ -18,6 +18,10 @@ public class Instructions {
         this.instructions.put("j", "000010");
         this.instructions.put("jr", "000000");
         this.instructions.put("jal", "000011");
+    }
+
+    public HashMap<String, String> getInstructions() {
+        return instructions;
     }
 
     public String and(){
@@ -63,6 +67,7 @@ public class Instructions {
     public String jr(){
         return this.instructions.get("jr");
     }
+
     public String jal(){
         return this.instructions.get("jal");
     }
