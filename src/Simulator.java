@@ -1,9 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.nio.file.attribute.UserPrincipalNotFoundException;
+import java.util.*;
 
 public class Simulator {
 
@@ -11,12 +9,14 @@ public class Simulator {
     private final Register register = new Register();
     private final String fileName;
     private final List<String> instructionLines = new ArrayList<>();
-    private final HashMap<String, Integer> labelAdresses = new HashMap<>();
+    private final HashMap<String, Integer> labelAddresses = new HashMap<>();
 
     public Simulator(String fileName) {
         this.fileName = fileName;
         readFile();
         firstPass();
+        secondPass();
+//        display();
     }
 
     public void readFile() {
@@ -56,29 +56,71 @@ public class Simulator {
     }
 
     public void firstPass() {
-        for (String line : instructionLines) {
-            if (line.contains(":")) {
-                String label = line.substring(0, line.lastIndexOf(":"));
-                Integer address = this.instructionLines.indexOf(line);
-                this.labelAdresses.put(label, address);
+        for (int i = 0; i != this.instructionLines.size(); i++) {
+            if (this.instructionLines.get(i).contains(":")) {
+                String currStr = this.instructionLines.get(i);
+                String label = currStr.substring(0, currStr.lastIndexOf(":"));
+                this.labelAddresses.put(label, i);
+
+                this.instructionLines.set(i, currStr.substring(currStr.lastIndexOf(":") + 1));
             }
         }
     }
+
+    public void secondPass() {
+        String alphabet = "abcdefghijklmnopqrstuvwxyz0123456789$()-";
+        for (String line : instructionLines) {
+            StringBuilder first = new StringBuilder();
+            StringBuilder second = new StringBuilder();
+            StringBuilder third = new StringBuilder();
+            StringBuilder fourth = new StringBuilder();
+
+            int counter = 0;
+            for (String ch : line.split("")) {
+                if (!first.isEmpty() && counter == 0 && (ch.equals("$") || !alphabet.contains(ch)))
+                    counter++;
+
+                if (ch.equals(","))
+                    counter++;
+
+                if (alphabet.contains(ch)) {
+                    if (counter == 0)
+                        first.append(ch);
+
+                    if (counter == 1)
+                        second.append(ch);
+
+                    if (counter == 2)
+                        third.append(ch);
+
+                    if (counter == 3)
+                        fourth.append(ch);
+
+                }
+            }
+
+            System.out.println(first + " " + second + " " + third + " " + fourth);
+        }
+
+    }
+
 
     public List<String> getInstructionLines() {
         return this.instructionLines;
     }
 
     public HashMap<String, Integer> getLabelAddresses() {
-        return this.labelAdresses;
+        return this.labelAddresses;
     }
 
 
     public static void main(String[] args) {
-        Simulator simulator =  new Simulator("test1.asm");
+        Simulator simulator = new Simulator("test1.asm");
+
+        System.out.println(" ----------- ");
         for (String line : simulator.getInstructionLines())
             System.out.println(line);
 
-        System.out.println(simulator.getLabelAddresses());
+//        System.out.println(simulator.getLabelAddresses());
     }
 }
