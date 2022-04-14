@@ -192,6 +192,10 @@ public class Simulator {
     public static void main(String[] args) {
         Simulator simulator = new Simulator("test1.asm");
 
+        for (String line : simulator.getFinalInstructLines()){
+            System.out.println(line);
+        }
+
         for (String line : simulator.getBinaryInstructLines()) {
             System.out.println(line);
         }
