@@ -24,55 +24,8 @@ public class Instruction {
         return instructions;
     }
 
-    public String and() {
-        return this.instructions.get("and");
+    public String getBinaryCode(String instructionName) {
+        return this.instructions.get(instructionName);
     }
 
-    public String or() {
-        return this.instructions.get("or");
-    }
-
-    public String addi() {
-        return this.instructions.get("addi");
-    }
-
-    public String sll() {
-        return this.instructions.get("sll");
-    }
-
-    public String sub() {
-        return this.instructions.get("sub");
-    }
-
-    public String slt() {
-        return this.instructions.get("slt");
-    }
-
-    public String beq() {
-        return this.instructions.get("beq");
-    }
-
-    public String bne() {
-        return this.instructions.get("bne");
-    }
-
-    public String lw() {
-        return this.instructions.get("lw");
-    }
-
-    public String sw() {
-        return this.instructions.get("sw");
-    }
-
-    public String j() {
-        return this.instructions.get("j");
-    }
-
-    public String jr() {
-        return this.instructions.get("jr");
-    }
-
-    public String jal() {
-        return this.instructions.get("jal");
-    }
 }

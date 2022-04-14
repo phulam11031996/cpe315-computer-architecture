@@ -3,7 +3,7 @@ import java.util.HashMap;
 public class Register {
     private HashMap<String, RegValue> registers = new HashMap<>();
 
-    public Register(){
+    public Register() {
         this.registers.put("$zero", new RegValue("00000", 0));
         this.registers.put("$0", new RegValue("00000", 0));
         this.registers.put("$v0", new RegValue("00010", 2));
@@ -34,86 +34,8 @@ public class Register {
         this.registers.put("$ra", new RegValue("11111", 31));
     }
 
-    public String zeroBin(){
-        return this.registers.get("$0").getBinaryCode();
-    }
-    public String v0Bin(){
-        return this.registers.get("$v0").getBinaryCode();
-    }
-    public String v1Bin(){
-        return this.registers.get("$v1").getBinaryCode();
-    }
-    public String a0Bin(){
-        return this.registers.get("$a0").getBinaryCode();
-    }
-    public String a1Bin(){
-        return this.registers.get("$a1").getBinaryCode();
-    }
-    public String a2Bin(){
-        return this.registers.get("$a2").getBinaryCode();
-    }
-    public String a3Bin(){
-        return this.registers.get("$a3").getBinaryCode();
-    }
-    public String t0Bin(){
-        return this.registers.get("$t0").getBinaryCode();
-    }
-    public String t1Bin(){
-        return this.registers.get("$t1").getBinaryCode();
-    }
-    public String t2Bin(){
-        return this.registers.get("$t2").getBinaryCode();
-    }
-    public String t3Bin(){
-        return this.registers.get("$t3").getBinaryCode();
-    }
-    public String t4Bin(){
-        return this.registers.get("$t4").getBinaryCode();
-    }
-    public String t5Bin(){
-        return this.registers.get("$t5").getBinaryCode();
-    }
-    public String t6Bin(){
-        return this.registers.get("$t6").getBinaryCode();
-    }
-    public String t7Bin(){
-        return this.registers.get("$t7").getBinaryCode();
-    }
-    public String s0Bin(){
-        return this.registers.get("$s0").getBinaryCode();
-    }
-    public String s1Bin(){
-        return this.registers.get("$s1").getBinaryCode();
-    }
-    public String s2Bin(){
-        return this.registers.get("$s2").getBinaryCode();
-    }
-    public String s3Bin(){
-        return this.registers.get("$s3").getBinaryCode();
-    }
-    public String s4Bin(){
-        return this.registers.get("$s4").getBinaryCode();
-    }
-    public String s5Bin(){
-        return this.registers.get("$s5").getBinaryCode();
-    }
-    public String s6Bin(){
-        return this.registers.get("$s6").getBinaryCode();
-    }
-    public String s7Bin(){
-        return this.registers.get("$s7").getBinaryCode();
-    }
-    public String t8Bin(){
-        return this.registers.get("$t8").getBinaryCode();
-    }
-    public String t9Bin(){
-        return this.registers.get("$t9").getBinaryCode();
-    }
-    public String spBin(){
-        return this.registers.get("$sp").getBinaryCode();
-    }
-    public String raBin(){
-        return this.registers.get("$ra").getBinaryCode();
+    public String getBinaryCode(String registerName) {
+        return this.registers.get(registerName).getBinaryCode();
     }
 
 }
