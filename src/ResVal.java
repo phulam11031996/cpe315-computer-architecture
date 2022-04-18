@@ -1,8 +1,8 @@
-public class RegValue {
+public class ResVal {
     private Integer registerNumber;
     private String binaryCode;
 
-    public RegValue(String binaryCode, Integer registerNumber) {
+    public ResVal(String binaryCode, Integer registerNumber) {
         this.registerNumber = registerNumber;
         this.binaryCode = binaryCode;
     }

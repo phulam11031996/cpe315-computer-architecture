@@ -4,10 +4,12 @@ import java.util.*;
 
 public class Simulator {
     private final String fileName;
+    private final InsTable insTable = new InsTable();
+    private final ResTable resTable = new ResTable();
     private final List<String> tempInstructLines = new ArrayList<>();
     private final List<String> finalInstructLines = new ArrayList<>();
     private final HashMap<String, Integer> labelAddresses = new HashMap<>();
-    private final List<Instruction> binaryInstructLines = new ArrayList<>();
+    private final List<Ins> binaryInstructLines = new ArrayList<>();
 
 
     public Simulator(String fileName) {
@@ -91,19 +93,17 @@ public class Simulator {
 
     public void convertBinary() {
         for (String line : this.finalInstructLines) {
-            String currBinInstruction = "";
             String[] instruction = line.split(" ");
             switch (instruction[0]) {
                 case ("and"): // r types = opcode + rs + rt + rd + shampt + funct
                 case ("add"):
-
-//                    currBinInstruction += this.instruction.getBinaryCode(instruction[0]) + " ";
-//                    currBinInstruction += this.register.getBinaryCode(instruction[2]) + " ";
-//                    currBinInstruction += this.register.getBinaryCode(instruction[3]) + " ";
-//                    currBinInstruction += this.register.getBinaryCode(instruction[1]) + " ";
-//                    currBinInstruction += "00000 ";
-//                    currBinInstruction += "100000";
-//                    this.binaryInstructLines.add(currBinInstruction);
+                    Ins ins = new Ins(this.insTable.getBinaryCode(instruction[0]),
+                            this.resTable.getBinaryCode(instruction[2]),
+                            this.resTable.getBinaryCode(instruction[3]),
+                            this.resTable.getBinaryCode(instruction[1]),
+                            "00000",
+                            "100000");
+                    this.binaryInstructLines.add(ins);
                     break;
                 case ("or"):
                     //
@@ -185,19 +185,23 @@ public class Simulator {
         return finalInstructLines;
     }
 
-    public List<String> getBinaryInstructLines() {
+    public List<Ins> getBinaryInstructLines() {
         return binaryInstructLines;
     }
 
     public static void main(String[] args) {
         Simulator simulator = new Simulator("test1.asm");
 
-        for (String line : simulator.getFinalInstructLines()){
-            System.out.println(line);
-        }
+//        for (String line : simulator.getFinalInstructLines()){
+//            System.out.println(line);
+//        }
 
-        for (String line : simulator.getBinaryInstructLines()) {
+        for (Ins line : simulator.getBinaryInstructLines()) {
             System.out.println(line);
+//            System.out.print(line.getOpcode());
+//            System.out.print(line.getRs());
+//            System.out.print(line.getRt());
+//            System.out.print(line.getRd());
         }
 
     }
