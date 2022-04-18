@@ -1,9 +1,11 @@
 import java.util.HashMap;
 
-public class InsTable {
+public class InstTable {
+    // data
     private HashMap<String, String> instructions = new HashMap<>();
 
-    public InsTable() {
+    // constructor
+    public InstTable() {
         this.instructions.put("and", "000000");
         this.instructions.put("or", "000000");
         this.instructions.put("add", "000000");
@@ -20,6 +22,7 @@ public class InsTable {
         this.instructions.put("jal", "000011");
     }
 
+    // setters and getters
     public String getBinaryCode(String name) {
         return this.instructions.get(name);
     }
