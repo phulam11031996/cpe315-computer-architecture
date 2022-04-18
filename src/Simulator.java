@@ -3,13 +3,12 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Simulator {
-    private final Instruction instruction = new Instruction();
-    private final Register register = new Register();
     private final String fileName;
     private final List<String> tempInstructLines = new ArrayList<>();
     private final List<String> finalInstructLines = new ArrayList<>();
-    private final List<String> binaryInstructLines = new ArrayList<>();
     private final HashMap<String, Integer> labelAddresses = new HashMap<>();
+    private final List<Instruction> binaryInstructLines = new ArrayList<>();
+
 
     public Simulator(String fileName) {
         this.fileName = fileName;
@@ -97,24 +96,25 @@ public class Simulator {
             switch (instruction[0]) {
                 case ("and"): // r types = opcode + rs + rt + rd + shampt + funct
                 case ("add"):
-                    currBinInstruction += this.instruction.getBinaryCode(instruction[0]) + " ";
-                    currBinInstruction += this.register.getBinaryCode(instruction[2]) + " ";
-                    currBinInstruction += this.register.getBinaryCode(instruction[3]) + " ";
-                    currBinInstruction += this.register.getBinaryCode(instruction[1]) + " ";
-                    currBinInstruction += "00000 ";
-                    currBinInstruction += "100000";
-                    this.binaryInstructLines.add(currBinInstruction);
+
+//                    currBinInstruction += this.instruction.getBinaryCode(instruction[0]) + " ";
+//                    currBinInstruction += this.register.getBinaryCode(instruction[2]) + " ";
+//                    currBinInstruction += this.register.getBinaryCode(instruction[3]) + " ";
+//                    currBinInstruction += this.register.getBinaryCode(instruction[1]) + " ";
+//                    currBinInstruction += "00000 ";
+//                    currBinInstruction += "100000";
+//                    this.binaryInstructLines.add(currBinInstruction);
                     break;
                 case ("or"):
                     //
                     //
                     break;
                 case ("addi"): // i types = opcode + rs + rt + immediate
-                    currBinInstruction += this.instruction.getBinaryCode(instruction[0]) + " ";
-                    currBinInstruction += this.register.getBinaryCode(instruction[1]) + " ";
-                    currBinInstruction += this.register.getBinaryCode(instruction[2]) + " ";
-                    currBinInstruction += toBinary(Integer.parseInt(instruction[3]), 16);
-                    this.binaryInstructLines.add(currBinInstruction);
+//                    currBinInstruction += this.instruction.getBinaryCode(instruction[0]) + " ";
+//                    currBinInstruction += this.register.getBinaryCode(instruction[1]) + " ";
+//                    currBinInstruction += this.register.getBinaryCode(instruction[2]) + " ";
+//                    currBinInstruction += toBinary(Integer.parseInt(instruction[3]), 16);
+//                    this.binaryInstructLines.add(currBinInstruction);
                     break;
                 case ("sll"):
                     //

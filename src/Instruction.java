@@ -1,31 +1,73 @@
-import java.util.HashMap;
-
+import java.util.ArrayList;
 public class Instruction {
-    private HashMap<String, String> instructions = new HashMap<>();
+    private String opcode;
+    private String rs;
+    private String rt;
+    private String rd;
+    private String shamt;
+    private String funct;
+    private String immediate;
+    private String address;
 
-    public Instruction() {
-        this.instructions.put("and", "000000");
-        this.instructions.put("or", "000000");
-        this.instructions.put("add", "000000");
-        this.instructions.put("addi", "001000");
-        this.instructions.put("sll", "000000");
-        this.instructions.put("sub", "000000");
-        this.instructions.put("slt", "000000");
-        this.instructions.put("beq", "000100");
-        this.instructions.put("bne", "000101");
-        this.instructions.put("lw", "100011");
-        this.instructions.put("sw", "101011");
-        this.instructions.put("j", "000010");
-        this.instructions.put("jr", "000000");
-        this.instructions.put("jal", "000011");
+    // r type
+    public Instruction(String opcode, String rs, String rt, String rd, String shamt, String funct) {
+        this.opcode = opcode;
+        this.rs = rs;
+        this.rt = rt;
+        this.rd = rd;
+        this.shamt = shamt;
+        this.funct = funct;
     }
 
-    public HashMap<String, String> getInstructions() {
-        return instructions;
+    // i type
+    public Instruction(String opcode, String rs, String rt, String immediate) {
+        this.opcode = opcode;
+        this.rs = rs;
+        this.rt = rt;
+        this.immediate = immediate;
     }
 
-    public String getBinaryCode(String instructionName) {
-        return this.instructions.get(instructionName);
+    // j type
+    public Instruction(String opcode, String address) {
+        this.opcode = opcode;
+        this.address = address;
     }
 
+    @Override
+    public String toString() {
+        ArrayList<String> r = new ArrayList<String>() {
+            {
+                add("and");
+                add("or");
+                add("add");
+                add("sll");
+                add("sub");
+                add("slt");
+                add("jr");
+            }
+        };
+        ArrayList<String> i = new ArrayList<String>() {
+            {
+                add("addi");
+                add("beq");
+                add("bne");
+                add("lw");
+                add("sw");
+            }
+        };
+        ArrayList<String> j = new ArrayList<String>() {
+            {
+                add("j");
+                add("jal");
+            }
+        };
+
+        if (r.contains(this.opcode))
+            return this.opcode + " " + this.rs + " " + this.rt + " " + this.rd + " " + this.shamt + " " + this.funct;
+
+        if (i.contains(this.opcode))
+            return this.opcode + " " + this.rt + " " + this.rs + " " + this.immediate;
+
+        return this.opcode + " " + this.address;
+    }
 }
