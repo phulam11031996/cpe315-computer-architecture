@@ -2,17 +2,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
-public class Simulator {
+public class lab2 {
     // data
     private final String fileName;
     private final InstTable instTable = new InstTable();
     private final RegTable regTable = new RegTable();
-    private final List<String> asmInst = new ArrayList<>();
     private final HashMap<String, Integer> labelAddresses = new HashMap<>();
+    private final List<String> asmInst = new ArrayList<>();
     private final List<Inst> binInst = new ArrayList<>();
 
     // constructor
-    public Simulator(String fileName) {
+    public lab2(String fileName) {
         this.fileName = fileName;
         readFile();
     }
@@ -159,7 +159,7 @@ public class Simulator {
                     break;
 
                 case ("sll"):
-                    Inst ins7 = new Inst(
+                    Inst ins3 = new Inst(
                             this.instTable.getBinaryCode(instruction[0]),
                             "00000",
                             this.regTable.getBinaryCode(instruction[2]),
@@ -169,7 +169,7 @@ public class Simulator {
                             null,
                             null
                     );
-                    this.binInst.add(ins7);
+                    this.binInst.add(ins3);
                     break;
 
                 case ("beq"):
@@ -180,7 +180,7 @@ public class Simulator {
                     else
                         address = this.labelAddresses.get(instruction[3]) - counter - 1;
 
-                    Inst ins3 = new Inst(
+                    Inst ins4 = new Inst(
                             this.instTable.getBinaryCode(instruction[0]),
                             this.regTable.getBinaryCode(instruction[1]),
                             this.regTable.getBinaryCode(instruction[2]),
@@ -190,12 +190,12 @@ public class Simulator {
                             toBinary(address, 16),
                             null
                     );
-                    this.binInst.add(ins3);
+                    this.binInst.add(ins4);
                     break;
 
                 case ("lw"):
                 case ("sw"):
-                    Inst ins4 = new Inst(
+                    Inst ins5 = new Inst(
                             this.instTable.getBinaryCode(instruction[0]),
                             this.regTable.getBinaryCode(instruction[3]),
                             this.regTable.getBinaryCode(instruction[1]),
@@ -205,12 +205,12 @@ public class Simulator {
                             toBinary(Integer.parseInt(instruction[2]), 16),
                             null
                     );
-                    this.binInst.add(ins4);
+                    this.binInst.add(ins5);
                     break;
 
                 case ("j"):
                 case ("jal"):
-                    Inst ins5 = new Inst(
+                    Inst ins6 = new Inst(
                             this.instTable.getBinaryCode(instruction[0]),
                             null,
                             null,
@@ -220,10 +220,10 @@ public class Simulator {
                             null,
                             toBinary(this.getLabelAddresses().get(instruction[1]), 26)
                     );
-                    this.binInst.add(ins5);
+                    this.binInst.add(ins6);
                     break;
                 case ("jr"):
-                    Inst ins6 = new Inst(
+                    Inst ins7 = new Inst(
                             this.instTable.getBinaryCode(instruction[0]),
                             this.regTable.getBinaryCode(instruction[1]),
                             null,
@@ -233,7 +233,7 @@ public class Simulator {
                             null,
                             null
                     );
-                    this.binInst.add(ins6);
+                    this.binInst.add(ins7);
                     break;
                 default:
                     Inst ins8 = new Inst(
@@ -243,6 +243,8 @@ public class Simulator {
                     break;
             }
             counter++;
+            if (instTable.getBinaryCode(instruction[0]) == null)
+                break;
         }
     }
 
@@ -256,9 +258,10 @@ public class Simulator {
     }
 
     public static void main(String[] args) {
-        Simulator simulator = new Simulator("test1.asm");
+        lab2 simulator = new lab2("test1.asm");
 
-        for (Inst line : simulator.getBinInst())
+        for (Inst line : simulator.getBinInst()) {
             System.out.println(line);
+        }
     }
 }

@@ -82,6 +82,6 @@ public class Inst {
         if (this.address != null)
             binCode.append(this.address);
 
-        return binCode.toString();
+        return binCode.toString().trim();
     }
 }
