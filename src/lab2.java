@@ -1,3 +1,6 @@
+// Section: 1 ( 8:10 AM in the morning )
+// Names: Phu & Rohit
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -93,7 +96,7 @@ public class lab2 {
 
             int counter = 0;
             for (String ch : line.split("")) {
-                if (!first.isEmpty() && counter == 0 && (ch.equals("$") || !alphabet.contains(ch)))
+                if (first.length() != 0 && counter == 0 && (ch.equals("$") || !alphabet.contains(ch)))
                     counter++;
                 if (ch.equals(",") || ch.equals("("))
                     counter++;
@@ -258,7 +261,7 @@ public class lab2 {
     }
 
     public static void main(String[] args) {
-        lab2 simulator = new lab2("test1.asm");
+        lab2 simulator = new lab2(args[0]);
 
         for (Inst line : simulator.getBinInst()) {
             System.out.println(line);
