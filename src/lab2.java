@@ -10,6 +10,8 @@ public class lab2 {
     private final String fileName;
     private final InstTable instTable = new InstTable();
     private final RegTable regTable = new RegTable();
+
+
     private final HashMap<String, Integer> labelAddresses = new HashMap<>();
     private final List<String> asmInst = new ArrayList<>();
     private final List<Inst> binInst = new ArrayList<>();
@@ -229,9 +231,9 @@ public class lab2 {
                     Inst ins7 = new Inst(
                             this.instTable.getBinaryCode(instruction[0]),
                             this.regTable.getBinaryCode(instruction[1]),
-                            null,
-                            null,
-                            "000000000000000",
+                            "00000",
+                            "00000",
+                            "00000",
                             "001000",
                             null,
                             null
@@ -264,7 +266,7 @@ public class lab2 {
         lab2 simulator = new lab2(args[0]);
 
         for (Inst line : simulator.getBinInst()) {
-            System.out.println(line);
+            System.out.println(line.getRs());
         }
     }
 }

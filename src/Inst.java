@@ -16,7 +16,9 @@ public class Inst {
             String rt,
             String rd,
             String shamt,
-            String func, String immediate, String address
+            String func,
+            String immediate,
+            String address
     ) {
         this.opcode = opcode;
         this.rs = rs;
@@ -30,35 +32,35 @@ public class Inst {
 
     // getters and setters
     public String getAddress() {
-        return address;
+        return this.address;
     }
 
     public String getFunct() {
-        return funct;
+        return this.funct;
     }
 
     public String getImmediate() {
-        return immediate;
+        return this.immediate;
     }
 
     public String getOpcode() {
-        return opcode;
+        return this.opcode;
     }
 
     public String getRd() {
-        return rd;
+        return this.rd;
     }
 
     public String getRs() {
-        return rs;
+        return this.rs;
     }
 
     public String getRt() {
-        return rt;
+        return this.rt;
     }
 
     public String getShamt() {
-        return shamt;
+        return this.shamt;
     }
 
     // overrides print
