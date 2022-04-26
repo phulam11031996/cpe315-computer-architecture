@@ -1,7 +1,6 @@
 // Section: 1 ( 8:10 AM in the morning )
 // Names: Phu & Rohit
 
-import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -11,7 +10,7 @@ public class lab2 {
     private final String fileName;
     private final InstTable instTable = new InstTable();
     private final RegTable regTable = new RegTable();
-    private final CurrState currState = new CurrState();
+    private final Simulator simulator = new Simulator();
 
 
     private final HashMap<String, Integer> labelAddresses = new HashMap<>();
@@ -37,8 +36,8 @@ public class lab2 {
         return this.binInst;
     }
 
-    public CurrState getCurrState() {
-        return this.currState;
+    public Simulator getCurrState() {
+        return this.simulator;
     }
 
     // methods
@@ -260,8 +259,72 @@ public class lab2 {
         }
     }
 
-    public void nextInstruction() {
-        currState.s(this.asmInst, this.labelAddresses);
+    public void scriptMode(String script) {
+        try {
+            File myObj = new File(script);
+            Scanner myReader = new Scanner(myObj);
+            boolean flag = true;
+            while (myReader.hasNextLine() && flag) {
+                String[] data = myReader.nextLine().split(" ");
+
+                // display mips>
+                if (data.length == 1)
+                    System.out.format("mips> %s\n", data[0]);
+                if (data.length == 2)
+                    System.out.format("mips> %s %s\n", data[0], data[1]);
+                if (data.length == 3)
+                    System.out.format("mips> %s %s %s\n", data[0], data[1], data[2]);
+
+                flag = nextPrint(data);
+            }
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("Script File doesn't exist.");
+            e.printStackTrace();
+        }
+    }
+
+    public void interactiveMode() {
+        boolean flag = true;
+        while (flag) {
+            Scanner myObj = new Scanner(System.in);
+            System.out.print("mips> ");
+            String[] input = myObj.nextLine().split(" ");
+            flag = nextPrint(input);
+        }
+    }
+
+    public boolean nextPrint(String[] data) {
+        // display info after mips>
+        if (Objects.equals(data[0], "c"))
+            simulator.c();
+
+        if (Objects.equals(data[0], "d"))
+            simulator.d();
+
+        if (Objects.equals(data[0], "h"))
+            simulator.h();
+
+        if (Objects.equals(data[0], "m"))
+            simulator.m(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+
+        if (Objects.equals(data[0], "q"))
+            return false;
+
+        if (Objects.equals(data[0], "r"))
+            while (simulator.s(this.asmInst, this.labelAddresses)) ;
+
+        if (Objects.equals(data[0], "s")) {
+            if (data.length == 2) {
+                for (int i = 0; i != Integer.parseInt(data[1]); i++)
+                    simulator.s(this.asmInst, this.labelAddresses);
+                System.out.println("\t\t" + data[1] + " instruction(s) executed");
+            } else {
+                simulator.s(this.asmInst, this.labelAddresses);
+                System.out.println("\t\t1 instruction(s) executed");
+            }
+        }
+        return true;
     }
 
     public static String toBinary(int num, int length) {
@@ -274,24 +337,13 @@ public class lab2 {
     }
 
     public static void main(String[] args) {
-//        lab2 simulator = new lab2(args[0]);
-//
-//        for (Inst line : simulator.getBinInst()) {
-//            System.out.println(line.getRs());
-//        }
+        lab2 simulator = new lab2(args[0]);
 
-        lab2 simulator = new lab2("test3.asm");
-
-        simulator.nextInstruction();
-        simulator.nextInstruction();
-        simulator.nextInstruction();
-        simulator.nextInstruction();
-        simulator.nextInstruction();
-        simulator.nextInstruction();
-
-        simulator.getCurrState().d();
-        simulator.getCurrState().m(0, 2);
-
-
+        if (args.length == 1)
+            simulator.interactiveMode();
+        else if (args.length == 2)
+            simulator.scriptMode(args[1]);
+        else
+            System.out.println("Invalid input. Please try again.\n");
     }
 }

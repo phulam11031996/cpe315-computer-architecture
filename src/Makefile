@@ -3,15 +3,11 @@ lab2:
 	javac *.java
 
 test1:
-	java lab2 test1.asm > out.txt
-	diff -w -B out.txt test1.output
-
+	java lab2 test1.asm script1.txt > out.txt
+	diff -w -B out.txt output1.txt 
 test2:
-	java lab2 test2.asm > out.txt
-	diff -w -B out.txt test2.output
+	java lab2 test2.asm script2.txt > out.txt
+	diff -w -B out.txt output2.txt
 test3:
-	java lab2 test3.asm > out.txt
-	diff -w -B out.txt test3.output
-test4:
-	java lab2 test4.asm > out.txt
-	diff -w -B out.txt test4.output
+	java lab2 test3.asm script3.txt > out.txt
+	diff -w -B out.txt output3.txt
