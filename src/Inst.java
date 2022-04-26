@@ -1,5 +1,6 @@
 public class Inst {
     // data
+    private String instName;
     private String opcode;
     private String rs;
     private String rt;
@@ -61,6 +62,10 @@ public class Inst {
 
     public String getShamt() {
         return this.shamt;
+    }
+
+    public String getInstName() {
+        return this.instName;
     }
 
     // overrides print

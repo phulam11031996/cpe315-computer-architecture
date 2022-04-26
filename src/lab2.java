@@ -1,6 +1,7 @@
 // Section: 1 ( 8:10 AM in the morning )
 // Names: Phu & Rohit
 
+import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -10,6 +11,7 @@ public class lab2 {
     private final String fileName;
     private final InstTable instTable = new InstTable();
     private final RegTable regTable = new RegTable();
+    private final CurrState currState = new CurrState();
 
 
     private final HashMap<String, Integer> labelAddresses = new HashMap<>();
@@ -28,11 +30,15 @@ public class lab2 {
     }
 
     public List<String> getAsmInst() {
-        return asmInst;
+        return this.asmInst;
     }
 
     public List<Inst> getBinInst() {
-        return binInst;
+        return this.binInst;
+    }
+
+    public CurrState getCurrState() {
+        return this.currState;
     }
 
     // methods
@@ -243,7 +249,8 @@ public class lab2 {
                 default:
                     Inst ins8 = new Inst(
                             null, null, null, null,
-                            null, null, null, instruction[0]);
+                            null, null, null, instruction[0]
+                    );
                     this.binInst.add(ins8);
                     break;
             }
@@ -251,6 +258,10 @@ public class lab2 {
             if (instTable.getBinaryCode(instruction[0]) == null)
                 break;
         }
+    }
+
+    public void nextInstruction() {
+        currState.s(this.asmInst, this.labelAddresses);
     }
 
     public static String toBinary(int num, int length) {
@@ -263,10 +274,24 @@ public class lab2 {
     }
 
     public static void main(String[] args) {
-        lab2 simulator = new lab2(args[0]);
+//        lab2 simulator = new lab2(args[0]);
+//
+//        for (Inst line : simulator.getBinInst()) {
+//            System.out.println(line.getRs());
+//        }
 
-        for (Inst line : simulator.getBinInst()) {
-            System.out.println(line.getRs());
-        }
+        lab2 simulator = new lab2("test3.asm");
+
+        simulator.nextInstruction();
+        simulator.nextInstruction();
+        simulator.nextInstruction();
+        simulator.nextInstruction();
+        simulator.nextInstruction();
+        simulator.nextInstruction();
+
+        simulator.getCurrState().d();
+        simulator.getCurrState().m(0, 2);
+
+
     }
 }
