@@ -119,16 +119,16 @@ public class Simulator {
                     this.pc++;
                     break;
                 case "bne":
-                    if (Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2])))
-                        this.pc++;
-                    else
+                    if (!Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2])))
                         this.pc = label.get(currInst[3]);
+                    else
+                        this.pc++;
                     break;
                 case "beq":
-                    if (!Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2])))
-                        this.pc++;
-                    else
+                    if (Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2])))
                         this.pc = label.get(currInst[3]);
+                    else
+                        this.pc++;
                     break;
                 case "jal":
                     this.reg.put("$ra", this.pc + 1);

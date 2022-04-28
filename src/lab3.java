@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
-public class lab2 {
+public class lab3{
     // data
     private final String fileName;
     private final InstTable instTable = new InstTable();
@@ -18,7 +18,7 @@ public class lab2 {
     private final List<Inst> binInst = new ArrayList<>();
 
     // constructor
-    public lab2(String fileName) {
+    public lab3(String fileName) {
         this.fileName = fileName;
         readFile();
     }
@@ -337,7 +337,7 @@ public class lab2 {
     }
 
     public static void main(String[] args) {
-        lab2 simulator = new lab2(args[0]);
+        lab3 simulator = new lab3(args[0]);
 
         if (args.length == 1)
             simulator.interactiveMode();
