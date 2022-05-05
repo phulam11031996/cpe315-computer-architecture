@@ -1,11 +1,11 @@
 import java.util.HashMap;
 
-public class InstTable {
+public class OpcodeTable {
     // data
     private HashMap<String, String> instructions = new HashMap<>();
 
     // constructor
-    public InstTable() {
+    public OpcodeTable() {
         this.instructions.put("and", "000000");
         this.instructions.put("or", "000000");
         this.instructions.put("add", "000000");
@@ -27,4 +27,3 @@ public class InstTable {
         return this.instructions.get(name);
     }
 }
-

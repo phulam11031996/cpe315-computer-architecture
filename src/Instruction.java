@@ -1,4 +1,4 @@
-public class Inst {
+public class Instruction {
     // data
     private String instName;
     private String opcode;
@@ -11,7 +11,7 @@ public class Inst {
     private String address;
 
     // constructor
-    public Inst(
+    public Instruction(
             String opcode,
             String rs,
             String rt,
@@ -19,8 +19,7 @@ public class Inst {
             String shamt,
             String func,
             String immediate,
-            String address
-    ) {
+            String address) {
         this.opcode = opcode;
         this.rs = rs;
         this.rt = rt;

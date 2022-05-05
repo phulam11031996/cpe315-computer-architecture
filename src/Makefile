@@ -4,10 +4,13 @@ lab3:
 
 test1:
 	java lab3 test1.asm script1.txt > out.txt
-	diff -w -B out.txt output1.txt 
+	diff -w -B out.txt output1.txt
+
 test2:
 	java lab3 test2.asm script2.txt > out.txt
 	diff -w -B out.txt output2.txt
+
 test3:
 	java lab3 test3.asm script3.txt > out.txt
 	diff -w -B out.txt output3.txt
+

@@ -1,20 +1,24 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Scanner;
 
-public class Simulator {
+public class Simulator extends Instructions {
     // data
-    int pc;
-    int[] dataMem;
-    HashMap<String, Integer> reg = new HashMap<>();
+    private int pc;
+    private int[] dataMem;
+    private HashMap<String, Integer> reg = new HashMap<>();
 
     // constructor
-    public Simulator() {
+    public Simulator(String filename) {
+        super(filename);
         this.init();
     }
 
-    // method
-    public void init() {
+    // private method
+    private void init() {
         this.pc = 0;
         this.dataMem = new int[8192];
         reg.put("$0", 0);
@@ -46,7 +50,7 @@ public class Simulator {
         reg.put("$ra", 0);
     }
 
-    public void clearFunctCallReg() {
+    private void clearFunctCallReg() {
         this.reg.put("v0", 0);
         this.reg.put("v1", 0);
         this.reg.put("a0", 0);
@@ -65,7 +69,7 @@ public class Simulator {
         this.reg.put("t9", 0);
     }
 
-    public void h() {
+    private void h() {
         System.out.println("\t\th = show help");
         System.out.println("\t\td = dump register state");
         System.out.println("\t\ts = single step through the program (i.e. execute 1 instruction and stop)");
@@ -76,29 +80,35 @@ public class Simulator {
         System.out.println("\t\tq = exit the program");
     }
 
-    public void d() {
+    private void d() {
         System.out.format("\t\tpc = %d\n", this.pc);
-        System.out.format("\t\t$0 = %d\t$v0 = %d\t$v1 = %d\t$a0 = %d\n", reg.get("$0"), reg.get("$v0"), reg.get("$v1"), reg.get("$a0"));
-        System.out.format("\t\t$a1 = %d\t$a2 = %d\t$a3 = %d\t$t0 = %d\n", reg.get("$a1"), reg.get("$a2"), reg.get("$a3"), reg.get("$t0"));
-        System.out.format("\t\t$t1 = %d\t$t2 = %d\t$t3 = %d\t$t4 = %d\n", reg.get("$t1"), reg.get("$t2"), reg.get("$t3"), reg.get("$t4"));
-        System.out.format("\t\t$t5 = %d\t$t6 = %d\t$t7 = %d\t$s0 = %d\n", reg.get("$t5"), reg.get("$t6"), reg.get("$t7"), reg.get("$s0"));
-        System.out.format("\t\t$s1 = %d\t$s2 = %d\t$s3 = %d\t$s4 = %d\n", reg.get("$s1"), reg.get("$s2"), reg.get("$s3"), reg.get("$s4"));
-        System.out.format("\t\t$s5 = %d\t$s6 = %d\t$s7 = %d\t$t8 = %d\n", reg.get("$s5"), reg.get("$s6"), reg.get("$s7"), reg.get("$t8"));
+        System.out.format("\t\t$0 = %d\t$v0 = %d\t$v1 = %d\t$a0 = %d\n", reg.get("$0"), reg.get("$v0"), reg.get("$v1"),
+                reg.get("$a0"));
+        System.out.format("\t\t$a1 = %d\t$a2 = %d\t$a3 = %d\t$t0 = %d\n", reg.get("$a1"), reg.get("$a2"),
+                reg.get("$a3"), reg.get("$t0"));
+        System.out.format("\t\t$t1 = %d\t$t2 = %d\t$t3 = %d\t$t4 = %d\n", reg.get("$t1"), reg.get("$t2"),
+                reg.get("$t3"), reg.get("$t4"));
+        System.out.format("\t\t$t5 = %d\t$t6 = %d\t$t7 = %d\t$s0 = %d\n", reg.get("$t5"), reg.get("$t6"),
+                reg.get("$t7"), reg.get("$s0"));
+        System.out.format("\t\t$s1 = %d\t$s2 = %d\t$s3 = %d\t$s4 = %d\n", reg.get("$s1"), reg.get("$s2"),
+                reg.get("$s3"), reg.get("$s4"));
+        System.out.format("\t\t$s5 = %d\t$s6 = %d\t$s7 = %d\t$t8 = %d\n", reg.get("$s5"), reg.get("$s6"),
+                reg.get("$s7"), reg.get("$t8"));
         System.out.format("\t\t$t9 = %d\t$sp = %d\t$ra = %d\n", reg.get("$t9"), reg.get("$sp"), reg.get("$ra"));
     }
 
-    public void m(int num1, int num2) {
+    private void m(int num1, int num2) {
         for (int i = num1; i != num2 + 1; i++) {
             System.out.format("\t\t[%d] = %d\n", i, this.dataMem[i]);
         }
     }
 
-    public void c() {
+    private void c() {
         this.init();
         System.out.println("\t\tSimulator reset");
     }
 
-    public boolean s(List<String> asmInst, HashMap<String, Integer> label) {
+    private boolean s(List<String> asmInst, HashMap<String, Integer> label) {
         if (this.pc <= asmInst.size() - 1) {
             String currInst[] = asmInst.get(this.pc).split(" ");
 
@@ -176,4 +186,88 @@ public class Simulator {
             return false;
         }
     }
+
+    private boolean nextPrint(String[] data) {
+        // display info after mips>
+        if (Objects.equals(data[0], "c"))
+            this.c();
+
+        if (Objects.equals(data[0], "d"))
+            this.d();
+
+        if (Objects.equals(data[0], "h"))
+            this.h();
+
+        if (Objects.equals(data[0], "m"))
+            this.m(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+
+        if (Objects.equals(data[0], "q"))
+            return false;
+
+        if (Objects.equals(data[0], "r"))
+            while (this.s(super.asmInst, super.labelAddresses))
+                ;
+
+        if (Objects.equals(data[0], "s")) {
+            if (data.length == 2) {
+                for (int i = 0; i != Integer.parseInt(data[1]); i++)
+                    this.s(super.asmInst, super.labelAddresses);
+                System.out.println("\t\t" + data[1] + " instruction(s) executed");
+            } else {
+                this.s(super.asmInst, super.labelAddresses);
+                System.out.println("\t\t1 instruction(s) executed");
+            }
+        }
+        return true;
+    }
+
+    // normal method
+    public void scriptMode(String scriptFile) {
+        try {
+            File myObj = new File(scriptFile);
+            Scanner myReader = new Scanner(myObj);
+            boolean flag = true;
+            while (flag && myReader.hasNextLine()) {
+                String[] data = myReader.nextLine().split(" ");
+
+                // display mips>
+                if (data.length == 1)
+                    System.out.format("mips> %s\n", data[0]);
+                if (data.length == 2)
+                    System.out.format("mips> %s %s\n", data[0], data[1]);
+                if (data.length == 3)
+                    System.out.format("mips> %s %s %s\n", data[0], data[1], data[2]);
+
+                flag = nextPrint(data);
+            }
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("Script File doesn't exist.");
+            e.printStackTrace();
+        }
+    }
+
+    public void interactiveMode() {
+        boolean flag = true;
+        Scanner myObj = new Scanner(System.in);
+        while (flag) {
+            System.out.print("mips> ");
+            String[] input = myObj.nextLine().split(" ");
+            flag = nextPrint(input);
+        }
+        myObj.close();
+    }
+
+    public void displayMachineCode() {
+        for (Instruction binInst : super.binInst) {
+            System.out.println(binInst);
+        }
+    }
+
+    public void displayMipsCode() {
+        for (String mipsInst : super.asmInst) {
+            System.out.println(mipsInst);
+        }
+    }
+
 }
