@@ -1,11 +1,11 @@
 import java.util.HashMap;
 
-public class OpcodeTable {
+public class OpcTab {
     // data
     private HashMap<String, String> instructions = new HashMap<>();
 
     // constructor
-    public OpcodeTable() {
+    public OpcTab() {
         this.instructions.put("and", "000000");
         this.instructions.put("or", "000000");
         this.instructions.put("add", "000000");

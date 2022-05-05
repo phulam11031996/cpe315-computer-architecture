@@ -5,18 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
-abstract class Instructions {
+abstract class Parser {
 
     private final String fileName;
 
-    private final RegisterTable registerTable = new RegisterTable();
-    private final OpcodeTable opcodeTable = new OpcodeTable();
+    private final RegTab regTab = new RegTab();
+    private final OpcTab opcTab = new OpcTab();
 
-    protected HashMap<String, Integer> labelAddresses = new HashMap<>();
+    protected HashMap<String, Integer> labAdds = new HashMap<>();
     protected List<String> asmInst = new ArrayList<>();
-    protected List<Instruction> binInst = new ArrayList<>();
+    protected List<Inst> binInst = new ArrayList<>();
 
-    public Instructions(String filename) {
+    public Parser(String filename) {
         this.fileName = filename;
         readFile();
     }
@@ -67,7 +67,7 @@ abstract class Instructions {
             if (tempInstructLines.get(i).contains(":")) {
                 String currStr = tempInstructLines.get(i);
                 String label = currStr.substring(0, currStr.lastIndexOf(":"));
-                this.labelAddresses.put(label, i);
+                this.labAdds.put(label, i);
 
                 tempInstructLines.set(i, currStr.substring(currStr.lastIndexOf(":") + 1));
             }
@@ -127,11 +127,11 @@ abstract class Instructions {
                         func = "100100";
                     else
                         func = "100000";
-                    Instruction ins1 = new Instruction(
-                            this.opcodeTable.getBinaryCode(instruction[0]),
-                            this.registerTable.getBinaryCode(instruction[2]),
-                            this.registerTable.getBinaryCode(instruction[3]),
-                            this.registerTable.getBinaryCode(instruction[1]),
+                    Inst ins1 = new Inst(
+                            this.opcTab.getBinaryCode(instruction[0]),
+                            this.regTab.getBinaryCode(instruction[2]),
+                            this.regTab.getBinaryCode(instruction[3]),
+                            this.regTab.getBinaryCode(instruction[1]),
                             "00000",
                             func,
                             null,
@@ -140,10 +140,10 @@ abstract class Instructions {
                     break;
 
                 case ("addi"):
-                    Instruction ins2 = new Instruction(
-                            this.opcodeTable.getBinaryCode(instruction[0]),
-                            this.registerTable.getBinaryCode(instruction[2]),
-                            this.registerTable.getBinaryCode(instruction[1]),
+                    Inst ins2 = new Inst(
+                            this.opcTab.getBinaryCode(instruction[0]),
+                            this.regTab.getBinaryCode(instruction[2]),
+                            this.regTab.getBinaryCode(instruction[1]),
                             null,
                             null,
                             null,
@@ -153,11 +153,11 @@ abstract class Instructions {
                     break;
 
                 case ("sll"):
-                    Instruction ins3 = new Instruction(
-                            this.opcodeTable.getBinaryCode(instruction[0]),
+                    Inst ins3 = new Inst(
+                            this.opcTab.getBinaryCode(instruction[0]),
                             "00000",
-                            this.registerTable.getBinaryCode(instruction[2]),
-                            this.registerTable.getBinaryCode(instruction[1]),
+                            this.regTab.getBinaryCode(instruction[2]),
+                            this.regTab.getBinaryCode(instruction[1]),
                             toBinary(Integer.parseInt(instruction[3]), 5),
                             "000000",
                             null,
@@ -168,15 +168,15 @@ abstract class Instructions {
                 case ("beq"):
                 case ("bne"):
                     int address;
-                    if (counter - this.labelAddresses.get(instruction[3]) > 0)
-                        address = -(counter + 1 - this.labelAddresses.get(instruction[3]));
+                    if (counter - this.labAdds.get(instruction[3]) > 0)
+                        address = -(counter + 1 - this.labAdds.get(instruction[3]));
                     else
-                        address = this.labelAddresses.get(instruction[3]) - counter - 1;
+                        address = this.labAdds.get(instruction[3]) - counter - 1;
 
-                    Instruction ins4 = new Instruction(
-                            this.opcodeTable.getBinaryCode(instruction[0]),
-                            this.registerTable.getBinaryCode(instruction[1]),
-                            this.registerTable.getBinaryCode(instruction[2]),
+                    Inst ins4 = new Inst(
+                            this.opcTab.getBinaryCode(instruction[0]),
+                            this.regTab.getBinaryCode(instruction[1]),
+                            this.regTab.getBinaryCode(instruction[2]),
                             null,
                             null,
                             null,
@@ -187,10 +187,10 @@ abstract class Instructions {
 
                 case ("lw"):
                 case ("sw"):
-                    Instruction ins5 = new Instruction(
-                            this.opcodeTable.getBinaryCode(instruction[0]),
-                            this.registerTable.getBinaryCode(instruction[3]),
-                            this.registerTable.getBinaryCode(instruction[1]),
+                    Inst ins5 = new Inst(
+                            this.opcTab.getBinaryCode(instruction[0]),
+                            this.regTab.getBinaryCode(instruction[3]),
+                            this.regTab.getBinaryCode(instruction[1]),
                             null,
                             null,
                             null,
@@ -201,21 +201,21 @@ abstract class Instructions {
 
                 case ("j"):
                 case ("jal"):
-                    Instruction ins6 = new Instruction(
-                            this.opcodeTable.getBinaryCode(instruction[0]),
+                    Inst ins6 = new Inst(
+                            this.opcTab.getBinaryCode(instruction[0]),
                             null,
                             null,
                             null,
                             null,
                             null,
                             null,
-                            toBinary(this.labelAddresses.get(instruction[1]), 26));
+                            toBinary(this.labAdds.get(instruction[1]), 26));
                     this.binInst.add(ins6);
                     break;
                 case ("jr"):
-                    Instruction ins7 = new Instruction(
-                            this.opcodeTable.getBinaryCode(instruction[0]),
-                            this.registerTable.getBinaryCode(instruction[1]),
+                    Inst ins7 = new Inst(
+                            this.opcTab.getBinaryCode(instruction[0]),
+                            this.regTab.getBinaryCode(instruction[1]),
                             "00000",
                             "00000",
                             "00000",
@@ -225,14 +225,14 @@ abstract class Instructions {
                     this.binInst.add(ins7);
                     break;
                 default:
-                    Instruction ins8 = new Instruction(
+                    Inst ins8 = new Inst(
                             null, null, null, null,
                             null, null, null, instruction[0]);
                     this.binInst.add(ins8);
                     break;
             }
             counter++;
-            if (opcodeTable.getBinaryCode(instruction[0]) == null)
+            if (opcTab.getBinaryCode(instruction[0]) == null)
                 break;
         }
     }

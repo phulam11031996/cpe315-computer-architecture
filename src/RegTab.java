@@ -1,11 +1,11 @@
 import java.util.HashMap;
 
-public class RegisterTable {
+public class RegTab {
     // data
     private HashMap<String, String> registers = new HashMap<>();
 
     // constructor
-    public RegisterTable() {
+    public RegTab() {
         this.registers.put("$zero", "00000");
         this.registers.put("$0", "00000");
         this.registers.put("$v0", "00010");

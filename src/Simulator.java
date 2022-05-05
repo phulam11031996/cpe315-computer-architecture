@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 
-public class Simulator extends Instructions {
+public class Simulator extends Parser {
     // data
     private int pc;
     private int[] dataMem;
@@ -108,7 +108,7 @@ public class Simulator extends Instructions {
         System.out.println("\t\tSimulator reset");
     }
 
-    private boolean s(List<String> asmInst, HashMap<String, Integer> label) {
+    private boolean s(List<String> asmInst, HashMap<String, Integer> labAdds) {
         if (this.pc <= asmInst.size() - 1) {
             String currInst[] = asmInst.get(this.pc).split(" ");
 
@@ -130,19 +130,19 @@ public class Simulator extends Instructions {
                     break;
                 case "bne":
                     if (!Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2])))
-                        this.pc = label.get(currInst[3]);
+                        this.pc = labAdds.get(currInst[3]);
                     else
                         this.pc++;
                     break;
                 case "beq":
                     if (Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2])))
-                        this.pc = label.get(currInst[3]);
+                        this.pc = labAdds.get(currInst[3]);
                     else
                         this.pc++;
                     break;
                 case "jal":
                     this.reg.put("$ra", this.pc + 1);
-                    this.pc = label.get(currInst[1]);
+                    this.pc = labAdds.get(currInst[1]);
                     this.clearFunctCallReg();
                     break;
                 case "slt":
@@ -161,7 +161,7 @@ public class Simulator extends Instructions {
                     this.pc = this.reg.get(currInst[1]);
                     break;
                 case "j":
-                    this.pc = label.get(currInst[1]);
+                    this.pc = labAdds.get(currInst[1]);
                     break;
                 case "and":
                     int tempInt3 = this.reg.get(currInst[2]) & this.reg.get(currInst[3]);
@@ -205,16 +205,16 @@ public class Simulator extends Instructions {
             return false;
 
         if (Objects.equals(data[0], "r"))
-            while (this.s(super.asmInst, super.labelAddresses))
+            while (this.s(super.asmInst, super.labAdds))
                 ;
 
         if (Objects.equals(data[0], "s")) {
             if (data.length == 2) {
                 for (int i = 0; i != Integer.parseInt(data[1]); i++)
-                    this.s(super.asmInst, super.labelAddresses);
+                    this.s(super.asmInst, super.labAdds);
                 System.out.println("\t\t" + data[1] + " instruction(s) executed");
             } else {
-                this.s(super.asmInst, super.labelAddresses);
+                this.s(super.asmInst, super.labAdds);
                 System.out.println("\t\t1 instruction(s) executed");
             }
         }
@@ -259,7 +259,7 @@ public class Simulator extends Instructions {
     }
 
     public void displayMachineCode() {
-        for (Instruction binInst : super.binInst) {
+        for (Inst binInst : super.binInst) {
             System.out.println(binInst);
         }
     }
