@@ -32,8 +32,11 @@ abstract class Parser {
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
                 if ((!data.trim().startsWith("#") || data.trim().contains(":")) && !data.trim().isEmpty()) {
-                    if (data.contains("#")) // removes comments
-                        tempInstructLines.add(data.trim().substring(0, data.trim().lastIndexOf("#")));
+                    if (data.contains("#")) { // removes comments
+                        String temp = data.trim().substring(0, data.trim().lastIndexOf("#"));
+                        if (!temp.equals(""))
+                            tempInstructLines.add(temp);
+                    }
                     else
                         tempInstructLines.add(data.trim());
                 }
@@ -128,6 +131,7 @@ abstract class Parser {
                     else
                         func = "100000";
                     Inst ins1 = new Inst(
+                            instruction[0],
                             this.opcTab.getBinaryCode(instruction[0]),
                             this.regTab.getBinaryCode(instruction[2]),
                             this.regTab.getBinaryCode(instruction[3]),
@@ -141,6 +145,7 @@ abstract class Parser {
 
                 case ("addi"):
                     Inst ins2 = new Inst(
+                            instruction[0],
                             this.opcTab.getBinaryCode(instruction[0]),
                             this.regTab.getBinaryCode(instruction[2]),
                             this.regTab.getBinaryCode(instruction[1]),
@@ -154,6 +159,7 @@ abstract class Parser {
 
                 case ("sll"):
                     Inst ins3 = new Inst(
+                            instruction[0],
                             this.opcTab.getBinaryCode(instruction[0]),
                             "00000",
                             this.regTab.getBinaryCode(instruction[2]),
@@ -174,6 +180,7 @@ abstract class Parser {
                         address = this.labAdds.get(instruction[3]) - counter - 1;
 
                     Inst ins4 = new Inst(
+                            instruction[0],
                             this.opcTab.getBinaryCode(instruction[0]),
                             this.regTab.getBinaryCode(instruction[1]),
                             this.regTab.getBinaryCode(instruction[2]),
@@ -188,6 +195,7 @@ abstract class Parser {
                 case ("lw"):
                 case ("sw"):
                     Inst ins5 = new Inst(
+                            instruction[0],
                             this.opcTab.getBinaryCode(instruction[0]),
                             this.regTab.getBinaryCode(instruction[3]),
                             this.regTab.getBinaryCode(instruction[1]),
@@ -202,6 +210,7 @@ abstract class Parser {
                 case ("j"):
                 case ("jal"):
                     Inst ins6 = new Inst(
+                            instruction[0],
                             this.opcTab.getBinaryCode(instruction[0]),
                             null,
                             null,
@@ -214,6 +223,7 @@ abstract class Parser {
                     break;
                 case ("jr"):
                     Inst ins7 = new Inst(
+                            instruction[0],
                             this.opcTab.getBinaryCode(instruction[0]),
                             this.regTab.getBinaryCode(instruction[1]),
                             "00000",
@@ -225,7 +235,7 @@ abstract class Parser {
                     this.binInst.add(ins7);
                     break;
                 default:
-                    Inst ins8 = new Inst(
+                    Inst ins8 = new Inst(                            instruction[0],
                             null, null, null, null,
                             null, null, null, instruction[0]);
                     this.binInst.add(ins8);

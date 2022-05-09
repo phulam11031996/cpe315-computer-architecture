@@ -1,273 +1,105 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Scanner;
 
-public class Simulator extends Parser {
-    // data
-    private int pc;
-    private int[] dataMem;
-    private HashMap<String, Integer> reg = new HashMap<>();
+public class Simulator extends Emulator {
 
-    // constructor
-    public Simulator(String filename) {
-        super(filename);
-        this.init();
+    private int cycles = 0;
+    private int numInsts = 0;
+    private double cpi = 0.0;
+    private List<Integer> pc = new LinkedList<Integer>();
+    private List<Inst> ifid = new LinkedList<Inst>();
+    private List<Inst> idexe = new LinkedList<Inst>();
+    private List<Inst> exemem = new LinkedList<Inst>();
+    private List<Inst> memwb = new LinkedList<Inst>();
+
+    private Inst empInst = new Inst("empty", null, null, null, null, null, null, null, null);
+    private Inst stallInst = new Inst("stall", null, null, null, null, null, null, null, null);
+    private Inst squashInst = new Inst("squash", null, null, null, null, null, null, null, null);
+
+    public Simulator(String fileName) {
+        super(fileName);
+        this.pc.add(0);
+        this.ifid.add(empInst);
+        this.idexe.add(empInst);
+        this.exemem.add(empInst);
+        this.memwb.add(empInst);
     }
 
-    // private method
-    private void init() {
-        this.pc = 0;
-        this.dataMem = new int[8192];
-        reg.put("$0", 0);
-        reg.put("$v0", 0);
-        reg.put("$v1", 0);
-        reg.put("$a0", 0);
-        reg.put("$a1", 0);
-        reg.put("$a2", 0);
-        reg.put("$a3", 0);
-        reg.put("$t0", 0);
-        reg.put("$t1", 0);
-        reg.put("$t2", 0);
-        reg.put("$t3", 0);
-        reg.put("$t4", 0);
-        reg.put("$t5", 0);
-        reg.put("$t6", 0);
-        reg.put("$t7", 0);
-        reg.put("$s0", 0);
-        reg.put("$s1", 0);
-        reg.put("$s2", 0);
-        reg.put("$s3", 0);
-        reg.put("$s4", 0);
-        reg.put("$s5", 0);
-        reg.put("$s6", 0);
-        reg.put("$s7", 0);
-        reg.put("$t8", 0);
-        reg.put("$t9", 0);
-        reg.put("$sp", 0);
-        reg.put("$ra", 0);
-    }
+    public boolean step() {
+        this.cycles += 1;
+        int lastIndex = this.ifid.size() - 1;
+        String idexeName = this.idexe.get(lastIndex).getInstName();
+        String idexeRt = this.idexe.get(lastIndex).getRt();
 
-    private void clearFunctCallReg() {
-        this.reg.put("v0", 0);
-        this.reg.put("v1", 0);
-        this.reg.put("a0", 0);
-        this.reg.put("a1", 0);
-        this.reg.put("a2", 0);
-        this.reg.put("a3", 0);
-        this.reg.put("t0", 0);
-        this.reg.put("t1", 0);
-        this.reg.put("t2", 0);
-        this.reg.put("t3", 0);
-        this.reg.put("t4", 0);
-        this.reg.put("t5", 0);
-        this.reg.put("t6", 0);
-        this.reg.put("t7", 0);
-        this.reg.put("t8", 0);
-        this.reg.put("t9", 0);
-    }
+        String ifidRt = this.ifid.get(lastIndex).getRt();
+        String ifidRs = this.ifid.get(lastIndex).getRs();
 
-    private void h() {
-        System.out.println("\t\th = show help");
-        System.out.println("\t\td = dump register state");
-        System.out.println("\t\ts = single step through the program (i.e. execute 1 instruction and stop)");
-        System.out.println("\t\ts num = step through num instructions of the program");
-        System.out.println("\t\tr = run until the program ends");
-        System.out.println("\t\tm num1 num2 = display data memory from location num1 to num2");
-        System.out.println("\t\tc = clear all registers, memory, and the program counter to 0");
-        System.out.println("\t\tq = exit the program");
-    }
-
-    private void d() {
-        System.out.format("\t\tpc = %d\n", this.pc);
-        System.out.format("\t\t$0 = %d\t$v0 = %d\t$v1 = %d\t$a0 = %d\n", reg.get("$0"), reg.get("$v0"), reg.get("$v1"),
-                reg.get("$a0"));
-        System.out.format("\t\t$a1 = %d\t$a2 = %d\t$a3 = %d\t$t0 = %d\n", reg.get("$a1"), reg.get("$a2"),
-                reg.get("$a3"), reg.get("$t0"));
-        System.out.format("\t\t$t1 = %d\t$t2 = %d\t$t3 = %d\t$t4 = %d\n", reg.get("$t1"), reg.get("$t2"),
-                reg.get("$t3"), reg.get("$t4"));
-        System.out.format("\t\t$t5 = %d\t$t6 = %d\t$t7 = %d\t$s0 = %d\n", reg.get("$t5"), reg.get("$t6"),
-                reg.get("$t7"), reg.get("$s0"));
-        System.out.format("\t\t$s1 = %d\t$s2 = %d\t$s3 = %d\t$s4 = %d\n", reg.get("$s1"), reg.get("$s2"),
-                reg.get("$s3"), reg.get("$s4"));
-        System.out.format("\t\t$s5 = %d\t$s6 = %d\t$s7 = %d\t$t8 = %d\n", reg.get("$s5"), reg.get("$s6"),
-                reg.get("$s7"), reg.get("$t8"));
-        System.out.format("\t\t$t9 = %d\t$sp = %d\t$ra = %d\n", reg.get("$t9"), reg.get("$sp"), reg.get("$ra"));
-    }
-
-    private void m(int num1, int num2) {
-        for (int i = num1; i != num2 + 1; i++) {
-            System.out.format("\t\t[%d] = %d\n", i, this.dataMem[i]);
+        
+        // check for what kind of step
+        if (idexeName.equals("lw")) {
+            if (idexeRt.equals(ifidRt) || idexeRt.equals(ifidRs))
+                return stallStep();
+            else
+                return normalStep();
+        } else {
+            return normalStep();
         }
     }
 
-    private void c() {
-        this.init();
-        System.out.println("\t\tSimulator reset");
-    }
+    public boolean normalStep() {
+        if (super.progInst.size() != 0) {
+            int lastIndex = this.ifid.size() - 1;
 
-    private boolean s(List<String> asmInst, HashMap<String, Integer> labAdds) {
-        if (this.pc <= asmInst.size() - 1) {
-            String currInst[] = asmInst.get(this.pc).split(" ");
+            this.pc.add(this.pc.get(lastIndex) + 1);
+            this.memwb.add(this.exemem.get(lastIndex));
+            this.exemem.add(this.idexe.get(lastIndex));
+            this.idexe.add(this.ifid.get(lastIndex));
+            this.ifid.add(super.progInst.get(0));
 
-            switch (currInst[0]) {
-                case "addi":
-                    int tempInt = Integer.parseInt(currInst[3]) + this.reg.get(currInst[2]);
-                    this.reg.put(currInst[1], tempInt);
-                    this.pc++;
-                    break;
-                case "add":
-                    int tempInt1 = this.reg.get(currInst[3]) + this.reg.get(currInst[2]);
-                    this.reg.put(currInst[1], tempInt1);
-                    this.pc++;
-                    break;
-                case "sw":
-                    int index = Integer.parseInt(currInst[2]) + this.reg.get(currInst[3]);
-                    this.dataMem[index] = this.reg.get(currInst[1]);
-                    this.pc++;
-                    break;
-                case "bne":
-                    if (!Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2])))
-                        this.pc = labAdds.get(currInst[3]);
-                    else
-                        this.pc++;
-                    break;
-                case "beq":
-                    if (Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2])))
-                        this.pc = labAdds.get(currInst[3]);
-                    else
-                        this.pc++;
-                    break;
-                case "jal":
-                    this.reg.put("$ra", this.pc + 1);
-                    this.pc = labAdds.get(currInst[1]);
-                    this.clearFunctCallReg();
-                    break;
-                case "slt":
-                    if (this.reg.get(currInst[2]) < this.reg.get(currInst[3]))
-                        this.reg.put(currInst[1], 1);
-                    else
-                        this.reg.put(currInst[1], 0);
-                    this.pc++;
-                    break;
-                case "lw":
-                    int tempInt2 = this.dataMem[this.reg.get(currInst[3]) + Integer.parseInt(currInst[2])];
-                    this.reg.put(currInst[1], tempInt2);
-                    this.pc++;
-                    break;
-                case "jr":
-                    this.pc = this.reg.get(currInst[1]);
-                    break;
-                case "j":
-                    this.pc = labAdds.get(currInst[1]);
-                    break;
-                case "and":
-                    int tempInt3 = this.reg.get(currInst[2]) & this.reg.get(currInst[3]);
-                    this.reg.put(currInst[1], tempInt3);
-                    this.pc++;
-                    break;
-                case "or":
-                    int tempInt4 = this.reg.get(currInst[2]) | this.reg.get(currInst[3]);
-                    this.reg.put(currInst[1], tempInt4);
-                    this.pc++;
-                    break;
-                case "sll":
-                    int tempInt5 = this.reg.get(currInst[2]) << Integer.parseInt(currInst[3]);
-                    this.reg.put(currInst[1], tempInt5);
-                    this.pc++;
-                    break;
-                default:
-                    break;
-            }
+            super.progInst.remove(0);
+            this.numInsts += 1;
             return true;
         } else {
             return false;
         }
     }
 
-    private boolean nextPrint(String[] data) {
-        // display info after mips>
-        if (Objects.equals(data[0], "c"))
-            this.c();
+    public boolean stallStep() {
+        int lastIndex = this.ifid.size() - 1;
 
-        if (Objects.equals(data[0], "d"))
-            this.d();
+        this.memwb.add(this.exemem.get(lastIndex));
+        this.exemem.add(this.idexe.get(lastIndex));
+        this.idexe.add(this.stallInst);
+        this.ifid.add(this.ifid.get(lastIndex));
+        this.pc.add(this.pc.get(lastIndex));
 
-        if (Objects.equals(data[0], "h"))
-            this.h();
-
-        if (Objects.equals(data[0], "m"))
-            this.m(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
-
-        if (Objects.equals(data[0], "q"))
-            return false;
-
-        if (Objects.equals(data[0], "r"))
-            while (this.s(super.asmInst, super.labAdds))
-                ;
-
-        if (Objects.equals(data[0], "s")) {
-            if (data.length == 2) {
-                for (int i = 0; i != Integer.parseInt(data[1]); i++)
-                    this.s(super.asmInst, super.labAdds);
-                System.out.println("\t\t" + data[1] + " instruction(s) executed");
-            } else {
-                this.s(super.asmInst, super.labAdds);
-                System.out.println("\t\t1 instruction(s) executed");
-            }
-        }
         return true;
     }
 
-    // normal method
-    public void scriptMode(String scriptFile) {
-        try {
-            File myObj = new File(scriptFile);
-            Scanner myReader = new Scanner(myObj);
-            boolean flag = true;
-            while (flag && myReader.hasNextLine()) {
-                String[] data = myReader.nextLine().split(" ");
-
-                // display mips>
-                if (data.length == 1)
-                    System.out.format("mips> %s\n", data[0]);
-                if (data.length == 2)
-                    System.out.format("mips> %s %s\n", data[0], data[1]);
-                if (data.length == 3)
-                    System.out.format("mips> %s %s %s\n", data[0], data[1], data[2]);
-
-                flag = nextPrint(data);
-            }
-            myReader.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("Script File doesn't exist.");
-            e.printStackTrace();
-        }
+    public boolean squash3Step() {
+        return true;
     }
 
-    public void interactiveMode() {
-        boolean flag = true;
-        Scanner myObj = new Scanner(System.in);
-        while (flag) {
-            System.out.print("mips> ");
-            String[] input = myObj.nextLine().split(" ");
-            flag = nextPrint(input);
-        }
-        myObj.close();
+    public boolean squash1Step() {
+        return true;
     }
 
-    public void displayMachineCode() {
-        for (Inst binInst : super.binInst) {
-            System.out.println(binInst);
-        }
+    public void displayPipeLine(int index) {
+        System.out.println("pc\tif/id\tid/exe\texe/mem\tmem/wb");
+        System.out.println(this.pc.get(index) + "\t" +
+                this.ifid.get(index).getInstName() + "\t" +
+                this.idexe.get(index).getInstName() + "\t" +
+                this.exemem.get(index).getInstName() + "\t" +
+                this.memwb.get(index).getInstName() + "\n");
     }
 
-    public void displayMipsCode() {
-        for (String mipsInst : super.asmInst) {
-            System.out.println(mipsInst);
-        }
+    public void help() {
+
     }
 
+    public void displayProgInst() {
+        for (Inst inst : super.progInst) {
+            System.out.println(inst);
+        }
+    }
 }

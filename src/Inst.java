@@ -12,6 +12,7 @@ public class Inst {
 
     // constructor
     public Inst(
+            String instName,
             String opcode,
             String rs,
             String rt,
@@ -20,6 +21,7 @@ public class Inst {
             String func,
             String immediate,
             String address) {
+        this.instName = instName;
         this.opcode = opcode;
         this.rs = rs;
         this.rt = rt;
