@@ -1,27 +1,25 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 
 abstract class Emulator extends Parser {
     // data
-    private int pc;
+    protected int pc;
     protected int[] dataMem;
+    protected Inst currInst = null;
+
     private HashMap<String, Integer> reg = new HashMap<>();
-    protected List<Inst> progInst = new LinkedList<>();
 
     // constructor
     public Emulator(String filename) {
         super(filename);
         this.init();
-        this.calProgInst();
     }
 
-    // private method
-    void init() {
+    protected void init() {
         this.pc = 0;
         this.dataMem = new int[8192];
         reg.put("$0", 0);
@@ -72,7 +70,8 @@ abstract class Emulator extends Parser {
         this.reg.put("t9", 0);
     }
 
-    private void h() {
+    // secure method
+    private void hE() {
         System.out.println("\t\th = show help");
         System.out.println("\t\td = dump register state");
         System.out.println("\t\ts = single step through the program (i.e. execute 1 instruction and stop)");
@@ -83,7 +82,7 @@ abstract class Emulator extends Parser {
         System.out.println("\t\tq = exit the program");
     }
 
-    private void d() {
+    protected void dE() {
         System.out.format("\t\tpc = %d\n", this.pc);
         System.out.format("\t\t$0 = %d\t$v0 = %d\t$v1 = %d\t$a0 = %d\n", reg.get("$0"), reg.get("$v0"), reg.get("$v1"),
                 reg.get("$a0"));
@@ -100,21 +99,21 @@ abstract class Emulator extends Parser {
         System.out.format("\t\t$t9 = %d\t$sp = %d\t$ra = %d\n", reg.get("$t9"), reg.get("$sp"), reg.get("$ra"));
     }
 
-    private void m(int num1, int num2) {
+    protected void mE(int num1, int num2) {
         for (int i = num1; i != num2 + 1; i++) {
             System.out.format("\t\t[%d] = %d\n", i, this.dataMem[i]);
         }
     }
 
-    private void c() {
+    protected void cE() {
         this.init();
         System.out.println("\t\tSimulator reset");
     }
 
-    boolean s(List<String> asmInst, HashMap<String, Integer> labAdds) {
+    protected boolean sE(List<String> asmInst, HashMap<String, Integer> labAdds) {
         if (this.pc <= asmInst.size() - 1) {
             String currInst[] = asmInst.get(this.pc).split(" ");
-            this.progInst.add(binInst.get(this.pc));
+            this.currInst = binInst.get(this.pc);
 
             switch (currInst[0]) {
                 case "addi":
@@ -199,47 +198,39 @@ abstract class Emulator extends Parser {
     private boolean nextPrint(String[] data) {
         // display info after mips>
         if (Objects.equals(data[0], "c"))
-            this.c();
+            this.cE();
 
         if (Objects.equals(data[0], "d"))
-            this.d();
+            this.dE();
 
         if (Objects.equals(data[0], "h"))
-            this.h();
+            this.hE();
 
         if (Objects.equals(data[0], "m"))
-            this.m(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+            this.mE(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
 
         if (Objects.equals(data[0], "q"))
             return false;
 
         if (Objects.equals(data[0], "r"))
-            while (this.s(super.asmInst, super.labAdds))
+            while (this.sE(super.asmInst, super.labAdds))
                 ;
 
         if (Objects.equals(data[0], "s")) {
             if (data.length == 2) {
                 for (int i = 0; i != Integer.parseInt(data[1]); i++)
-                    this.s(super.asmInst, super.labAdds);
+                    this.sE(super.asmInst, super.labAdds);
                 System.out.println("\t\t" + data[1] + " instruction(s) executed");
             } else {
-                this.s(super.asmInst, super.labAdds);
+                this.sE(super.asmInst, super.labAdds);
                 System.out.println("\t\t1 instruction(s) executed");
             }
         }
         return true;
     }
 
-    private void calProgInst() {
-        boolean flag = true;
-        while (flag){
-            flag = this.s(super.asmInst, super.labAdds);
-        }
-        this.init();
-    }
-
-    // normal method
-    public void scriptMode(String scriptFile) {
+    // lab 3 method
+    public void scriptModeE(String scriptFile) {
         try {
             File myObj = new File(scriptFile);
             Scanner myReader = new Scanner(myObj);
@@ -264,7 +255,7 @@ abstract class Emulator extends Parser {
         }
     }
 
-    public void interactiveMode() {
+    public void interactiveModeE() {
         boolean flag = true;
         Scanner myObj = new Scanner(System.in);
         while (flag) {
@@ -273,18 +264,6 @@ abstract class Emulator extends Parser {
             flag = nextPrint(input);
         }
         myObj.close();
-    }
-
-    public void displayMachineCode() {
-        for (Inst binInst : super.binInst) {
-            System.out.println(binInst);
-        }
-    }
-
-    public void displayMipsCode() {
-        for (String mipsInst : super.asmInst) {
-            System.out.println(mipsInst);
-        }
     }
 
 }

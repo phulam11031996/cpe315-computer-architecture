@@ -1,54 +1,36 @@
-# lab4_test1.asm
+# compute fibonacci numbers
 #
-# CPI = 1.400	cycles = 42	instructions = 30
+# 20th fibonacci number = 6765
+# CPI = 1.409	cycles = 209704	instructions = 148818
 
-# instructions with rd as destination
+addi $a0, $0, 20	# input argument
+addi $sp, $0, 4095	# initialize stack pointer
+jal fibonacci
+j end
 
-lw $a0, 0($a1)
-add $t0, $a0, $a1	# stall
+fibonacci:	addi $t0, $0, 3
+		slt $t1, $a0, $t0
+		bne $0, $t1, basecase	# check if argument is less than 3
 
-lw $a0, 0($a1)
-add $t0, $a1, $a0	# stall
+		addi $sp, $sp, -3
+		sw $a0, 0($sp)
+		sw $ra, 1($sp)
+		addi $a0, $a0, -1
+		jal fibonacci		# compute fibonacci(n-1)
 
-lw $a0, 0($a1)
-add $t0, $t0, $t0	# no stall
+		sw $v0, 2($sp)
+		lw $a0, 0($sp)
+		addi $a0, $a0, -2
+		jal fibonacci		# compute fibonacci(n-2)
+		lw $t0, 2($sp)
+		add $v0, $v0, $t0
 
-lw $a0, 0($a1)
-sub $t0, $a1, $a0	# stall
+		lw $ra, 1($sp)
+		addi $sp, $sp, 3
+		jr $ra
 
-lw $a0, 0($a1)
-sub $t0, $a0, $a1	# stall
-
-lw $a0, 0($a1)
-sub $t0, $t0, $t0	# no stall
-
-lw $a0, 0($a1)
-slt $t0, $a0, $a1	# stall
-
-lw $a0, 0($a1)
-slt $t0, $a1, $a0	# stall
-
-lw $a0, 0($a1)
-slt $t0, $t0, $t0	# no stall
-
-# instructions with rt as destination
-
-lw $a0, 0($a1)		# no stall
-addi $t0, $a1, 1
-
-lw $a0, 0($a1)		# stall
-addi $t0, $a0, 1
-
-lw $a0, 0($a1)		# no stall
-addi $a0, $t0, 1
-
-lw $a0, 0($a1)
-lw $a0, 0($a1)		# no stall
-
-lw $a0, 0($a1)
-lw $a1, 0($a0)		# stall
-
-lw $0, 0($s1)		# no stall
-add $s2, $s1, $0
+basecase:	addi $v0, $0, 1
+		jr $ra
 
 
+end: add $0, $0, $0

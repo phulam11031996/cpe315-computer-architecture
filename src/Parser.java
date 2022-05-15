@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 abstract class Parser {
 
+    // data
     private final String fileName;
 
     private final RegTab regTab = new RegTab();
@@ -16,6 +17,7 @@ abstract class Parser {
     protected List<String> asmInst = new ArrayList<>();
     protected List<Inst> binInst = new ArrayList<>();
 
+    // constructor
     public Parser(String filename) {
         this.fileName = filename;
         readFile();
@@ -36,8 +38,7 @@ abstract class Parser {
                         String temp = data.trim().substring(0, data.trim().lastIndexOf("#"));
                         if (!temp.equals(""))
                             tempInstructLines.add(temp);
-                    }
-                    else
+                    } else
                         tempInstructLines.add(data.trim());
                 }
             }
@@ -142,7 +143,6 @@ abstract class Parser {
                             null);
                     this.binInst.add(ins1);
                     break;
-
                 case ("addi"):
                     Inst ins2 = new Inst(
                             instruction[0],
@@ -156,7 +156,6 @@ abstract class Parser {
                             null);
                     this.binInst.add(ins2);
                     break;
-
                 case ("sll"):
                     Inst ins3 = new Inst(
                             instruction[0],
@@ -170,7 +169,6 @@ abstract class Parser {
                             null);
                     this.binInst.add(ins3);
                     break;
-
                 case ("beq"):
                 case ("bne"):
                     int address;
@@ -191,7 +189,6 @@ abstract class Parser {
                             null);
                     this.binInst.add(ins4);
                     break;
-
                 case ("lw"):
                 case ("sw"):
                     Inst ins5 = new Inst(
@@ -235,7 +232,7 @@ abstract class Parser {
                     this.binInst.add(ins7);
                     break;
                 default:
-                    Inst ins8 = new Inst(                            instruction[0],
+                    Inst ins8 = new Inst(instruction[0],
                             null, null, null, null,
                             null, null, null, instruction[0]);
                     this.binInst.add(ins8);
@@ -247,14 +244,26 @@ abstract class Parser {
         }
     }
 
-    // static method
-    public static String toBinary(int num, int length) {
+    private static String toBinary(int num, int length) {
         StringBuilder strResult = new StringBuilder();
         for (int i = length - 1; i >= 0; i--) {
             int mask = 1 << i;
             strResult.append((num & mask) != 0 ? 1 : 0);
         }
         return strResult.toString();
+    }
+
+    // lab 2 method
+    public void displayMachineCode() {
+        for (Inst binInst : this.binInst) {
+            System.out.println(binInst);
+        }
+    }
+
+    public void displayMipsCode() {
+        for (String mipsInst : this.asmInst) {
+            System.out.println(mipsInst);
+        }
     }
 
 }
