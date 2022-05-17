@@ -4,15 +4,15 @@
 public class lab4 {
 
     public static void main(String[] args) {
-        Simulator simulator = new Simulator("test1.asm");
-
-        simulator.scriptModeS("script1.txt");
-        // simulator.interactiveModeS();
-
-        // simulator.scriptModeE("script1.txt");
-        // simulator.interactiveModeE();
+        Simulator simulator = new Simulator(args[0]);
 
         // simulator.displayMachineCode();
-        // simulator.displayMipsCode();
+
+        if (args.length == 1)
+            simulator.interactiveModeS();
+        else if (args.length == 2)
+            simulator.scriptModeS(args[1]);
+        else
+            System.out.println("Invalid input. Please try again.");
     }
 }

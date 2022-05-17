@@ -11,15 +11,16 @@ public class Simulator extends Emulator {
     private int cycles = 4;
     private int numInsts = 0;
     private int squashFlag = 0;
+
     private List<Integer> pcList = null;
     private List<Inst> ifid = null;
-    private List<Inst> idexe = null;
-    private List<Inst> exemem = null;
-    private List<Inst> memwb = null;
+    private List<Inst> idex = null;
+    private List<Inst> exme = null;
+    private List<Inst> mewb = null;
 
     private Inst empInst = new Inst("empty", null, null, null, null, null, null, null, null);
-    private Inst stallInst = new Inst("stall", null, null, null, null, null, null, null, null);
-    private Inst squashInst = new Inst("squash", null, null, null, null, null, null, null, null);
+    private Inst staInst = new Inst("stall", null, null, null, null, null, null, null, null);
+    private Inst squInst = new Inst("squash", null, null, null, null, null, null, null, null);
 
     // constructor
     public Simulator(String fileName) {
@@ -30,14 +31,15 @@ public class Simulator extends Emulator {
     public void initS() {
         this.pcList = new LinkedList<Integer>();
         this.ifid = new LinkedList<Inst>();
-        this.idexe = new LinkedList<Inst>();
-        this.exemem = new LinkedList<Inst>();
-        this.memwb = new LinkedList<Inst>();
+        this.idex = new LinkedList<Inst>();
+        this.exme = new LinkedList<Inst>();
+        this.mewb = new LinkedList<Inst>();
+
         this.pcList.add(0);
         this.ifid.add(empInst);
-        this.idexe.add(empInst);
-        this.exemem.add(empInst);
-        this.memwb.add(empInst);
+        this.idex.add(empInst);
+        this.exme.add(empInst);
+        this.mewb.add(empInst);
     }
 
     // secure method
@@ -55,12 +57,13 @@ public class Simulator extends Emulator {
 
     private void pS() {
         int lastIndex = this.ifid.size() - 1;
-        System.out.println("\t\tpc\tif/id\tid/exe\texe/mem\tmem/wb");
+
+        System.out.println("\n\t\tpc\tif/id\tid/exe\texe/mem\tmem/wb");
         System.out.println("\t\t" + this.pcList.get(lastIndex) + "\t" +
                 this.ifid.get(lastIndex).getInstName() + "\t" +
-                this.idexe.get(lastIndex).getInstName() + "\t" +
-                this.exemem.get(lastIndex).getInstName() + "\t" +
-                this.memwb.get(lastIndex).getInstName() + "\n");
+                this.idex.get(lastIndex).getInstName() + "\t" +
+                this.exme.get(lastIndex).getInstName() + "\t" +
+                this.mewb.get(lastIndex).getInstName() + "\n");
     }
 
     private void sS(int numSteps) {
@@ -76,10 +79,10 @@ public class Simulator extends Emulator {
     private boolean step() {
         int lastIndex = this.ifid.size() - 1;
 
-        String idexeName = this.idexe.get(lastIndex).getInstName();
-        String ifidName = this.ifid.get(lastIndex).getInstName();
+        String idexName = this.idex.get(lastIndex).getInstName();
+        String idexRt = this.idex.get(lastIndex).getRt();
 
-        String idexeRt = this.idexe.get(lastIndex).getRt();
+        String ifidName = this.ifid.get(lastIndex).getInstName();
         String ifidRt = this.ifid.get(lastIndex).getRt();
         String ifidRs = this.ifid.get(lastIndex).getRs();
 
@@ -89,11 +92,19 @@ public class Simulator extends Emulator {
         if (this.squashFlag == 2)
             return squash3StepFlag2();
 
-        if (idexeName.equals("lw")) {
-            if (idexeRt.equals(ifidRt) || idexeRt.equals(ifidRs))
+        if (idexName.equals("lw") && (!idexRt.equals("00000"))) {
+
+            if ("add sub and or slt".contains(ifidName) && idexRt.equals(ifidRt) || idexRt.equals(ifidRs))
                 return stallStep();
-            else
-                return normalStep();
+
+            if ("lw sw addi".contains(ifidName) && idexRt.equals(ifidRs))
+                return stallStep();
+
+            if ("sll".contains(ifidName) && idexRt.equals(ifidRt))
+                return stallStep();
+
+            return normalStep();
+
         } else if (("j jal jr".contains(ifidName))) {
             return squash1Step();
         } else if ("bne beq".contains(ifidName)) {
@@ -108,9 +119,9 @@ public class Simulator extends Emulator {
             int lastIndex = this.ifid.size() - 1;
 
             this.pcList.add(this.pcList.get(lastIndex) + 1);
-            this.memwb.add(this.exemem.get(lastIndex));
-            this.exemem.add(this.idexe.get(lastIndex));
-            this.idexe.add(this.ifid.get(lastIndex));
+            this.mewb.add(this.exme.get(lastIndex));
+            this.exme.add(this.idex.get(lastIndex));
+            this.idex.add(this.ifid.get(lastIndex));
             this.ifid.add(super.currInst);
 
             this.numInsts += 1;
@@ -125,9 +136,9 @@ public class Simulator extends Emulator {
         int lastIndex = this.ifid.size() - 1;
 
         this.pcList.add(super.pc);
-        this.memwb.add(this.exemem.get(lastIndex));
-        this.exemem.add(this.idexe.get(lastIndex));
-        this.idexe.add(this.stallInst);
+        this.mewb.add(this.exme.get(lastIndex));
+        this.exme.add(this.idex.get(lastIndex));
+        this.idex.add(this.staInst);
         this.ifid.add(this.ifid.get(lastIndex));
 
         this.cycles += 1;
@@ -137,11 +148,11 @@ public class Simulator extends Emulator {
     private boolean squash1Step() {
         int lastIndex = this.ifid.size() - 1;
 
-        this.memwb.add(this.exemem.get(lastIndex));
-        this.exemem.add(this.idexe.get(lastIndex));
-        this.idexe.add(this.ifid.get(lastIndex));
-        this.ifid.add(this.squashInst);
         this.pcList.add(super.pc);
+        this.mewb.add(this.exme.get(lastIndex));
+        this.exme.add(this.idex.get(lastIndex));
+        this.idex.add(this.ifid.get(lastIndex));
+        this.ifid.add(this.squInst);
 
         this.cycles += 1;
         return true;
@@ -154,22 +165,22 @@ public class Simulator extends Emulator {
             sE(super.asmInst, super.labAdds);
 
             this.pcList.add(super.pc);
-            this.memwb.add(this.exemem.get(lastIndex));
-            this.exemem.add(this.idexe.get(lastIndex));
-            this.idexe.add(this.ifid.get(lastIndex));
+            this.mewb.add(this.exme.get(lastIndex));
+            this.exme.add(this.idex.get(lastIndex));
+            this.idex.add(this.ifid.get(lastIndex));
             this.ifid.add(super.currInst);
 
             this.numInsts += 1;
             this.cycles += 1;
         } else {
             int pcIdx = this.pcList.get(lastIndex - 1);
-            Inst inst1 = super.binInst.get(pcIdx + 1);
+            Inst inst = super.binInst.get(pcIdx + 1);
 
             this.pcList.add(pcIdx + 2);
-            this.memwb.add(this.exemem.get(lastIndex));
-            this.exemem.add(this.idexe.get(lastIndex));
-            this.idexe.add(this.ifid.get(lastIndex));
-            this.ifid.add(inst1);
+            this.mewb.add(this.exme.get(lastIndex));
+            this.exme.add(this.idex.get(lastIndex));
+            this.idex.add(this.ifid.get(lastIndex));
+            this.ifid.add(inst);
 
             this.squashFlag = 1;
             this.cycles += 1;
@@ -180,13 +191,13 @@ public class Simulator extends Emulator {
     private boolean squash3StepFlag1() {
         int lastIndex = this.ifid.size() - 1;
         int pcIdx = this.pcList.get(lastIndex - 1);
-        Inst inst1 = super.binInst.get(pcIdx + 1);
+        Inst inst = super.binInst.get(pcIdx + 1);
 
         this.pcList.add(pcIdx + 2);
-        this.memwb.add(this.exemem.get(lastIndex));
-        this.exemem.add(this.idexe.get(lastIndex));
-        this.idexe.add(this.ifid.get(lastIndex));
-        this.ifid.add(inst1);
+        this.mewb.add(this.exme.get(lastIndex));
+        this.exme.add(this.idex.get(lastIndex));
+        this.idex.add(this.ifid.get(lastIndex));
+        this.ifid.add(inst);
 
         this.squashFlag = 2;
         this.cycles += 1;
@@ -198,20 +209,19 @@ public class Simulator extends Emulator {
         int pcIdx = this.pcList.get(lastIndex - 1);
 
         this.pcList.add(pcIdx + 2);
-        this.memwb.add(this.exemem.get(lastIndex));
-        this.exemem.add(this.squashInst);
-        this.idexe.add(this.squashInst);
-        this.ifid.add(this.squashInst);
+        this.mewb.add(this.exme.get(lastIndex));
+        this.exme.add(this.squInst);
+        this.idex.add(this.squInst);
+        this.ifid.add(this.squInst);
 
         this.squashFlag = 0;
         this.cycles += 1;
-
         return true;
     }
 
     private boolean nextPrint(String[] data) {
-        if (Objects.equals(data[0], "p"))
-            this.pS();
+        if (Objects.equals(data[0], "h"))
+            this.hS();
 
         if (Objects.equals(data[0], "c"))
             this.cS();
@@ -219,19 +229,19 @@ public class Simulator extends Emulator {
         if (Objects.equals(data[0], "d"))
             super.dE();
 
-        if (Objects.equals(data[0], "h"))
-            this.hS();
-
-        if (Objects.equals(data[0], "m"))
-            super.mE(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+        if (Objects.equals(data[0], "p"))
+            this.pS();
 
         if (Objects.equals(data[0], "q"))
             return false;
 
+        if (Objects.equals(data[0], "m"))
+            super.mE(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+
         if (Objects.equals(data[0], "r")) {
             while (this.step())
                 ;
-            System.out.println("\t\tProgram complete");
+            System.out.println("\n\t\tProgram complete");
             System.out.format("\t\tCPI = %.3f\tCycles = %d\tInstructions = %d\n\n",
                     (double) this.cycles / this.numInsts, this.cycles,
                     this.numInsts);
@@ -267,6 +277,7 @@ public class Simulator extends Emulator {
                 flag = nextPrint(data);
             }
             myReader.close();
+
         } catch (FileNotFoundException e) {
             System.out.println("Script File doesn't exist.");
             e.printStackTrace();
@@ -276,6 +287,7 @@ public class Simulator extends Emulator {
     public void interactiveModeS() {
         boolean flag = true;
         Scanner myObj = new Scanner(System.in);
+
         while (flag) {
             System.out.print("mips> ");
             String[] input = myObj.nextLine().split(" ");
