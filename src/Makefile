@@ -1,20 +1,16 @@
-lab4:
+lab5:
 	#replace the following command with your compilation command
 	javac *.java
 
 test1:
-	java lab4 test1.asm script1.txt > out.txt
-	diff -w -B out.txt output1.txt
+	java lab5 lab4_fib20.asm lab5.script 2 > out.txt
+	diff -w -B out.txt lab5_ghr2.output
 
 test2:
-	java lab4 test2.asm script2.txt > out.txt
-	diff -w -B out.txt output2.txt
+	java lab5 lab4_fib20.asm lab5.script 4 > out.txt
+	diff -w -B out.txt lab5_ghr4.output
 
 test3:
-	java lab4 test3.asm script3.txt > out.txt
-	diff -w -B out.txt output3.txt
-
-test4:
-	java lab4 test4.asm script4.txt > out.txt
-	diff -w -B out.txt output4.txt
+	java lab5 lab4_fib20.asm lab5.script 8 > out.txt
+	diff -w -B out.txt lab5_ghr8.output
 

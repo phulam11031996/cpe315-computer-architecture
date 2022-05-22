@@ -11,12 +11,15 @@ abstract class Emulator extends Parser {
     protected int[] dataMem;
     protected Inst currInst = null;
 
-    private HashMap<String, Integer> reg = new HashMap<>();
+    protected HashMap<String, Integer> reg = new HashMap<>();
+
+    protected Predictor predictor;
 
     // constructor
-    public Emulator(String filename) {
+    public Emulator(String filename, int ghrBits) {
         super(filename);
         this.init();
+        this.predictor = new Predictor(ghrBits);
     }
 
     protected void init() {
@@ -78,6 +81,7 @@ abstract class Emulator extends Parser {
         System.out.println("\t\ts num = step through num instructions of the program");
         System.out.println("\t\tr = run until the program ends");
         System.out.println("\t\tm num1 num2 = display data memory from location num1 to num2");
+        System.out.println("\t\tb = output the branch predictor accuracy.");
         System.out.println("\t\tc = clear all registers, memory, and the program counter to 0");
         System.out.println("\t\tq = exit the program");
     }
@@ -132,16 +136,34 @@ abstract class Emulator extends Parser {
                     this.pc++;
                     break;
                 case "bne":
-                    if (!Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2])))
+                    if (!Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2]))) {
                         this.pc = labAdds.get(currInst[3]);
-                    else
+                        
+                        if (this.predictor.getPre() == 1)
+                            this.predictor.increWrongPre();
+                        this.predictor.updatePre(1);
+                    } else {
                         this.pc++;
+
+                        if (this.predictor.getPre() == 0)
+                            this.predictor.increWrongPre();
+                        this.predictor.updatePre(0);
+                    }
                     break;
                 case "beq":
-                    if (Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2])))
+                    if (Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2]))) {
                         this.pc = labAdds.get(currInst[3]);
-                    else
+
+                        if (this.predictor.getPre() == 1)
+                            this.predictor.increWrongPre();
+                        this.predictor.updatePre(1);
+                    } else {
                         this.pc++;
+                        
+                        if (this.predictor.getPre() == 0)
+                            this.predictor.increWrongPre();
+                        this.predictor.updatePre(0);
+                    }
                     break;
                 case "jal":
                     this.reg.put("$ra", this.pc + 1);
@@ -197,6 +219,9 @@ abstract class Emulator extends Parser {
 
     private boolean nextPrint(String[] data) {
         // display info after mips>
+        if (Objects.equals(data[0], "b"))
+            this.predictor.displayStat();
+
         if (Objects.equals(data[0], "c"))
             this.cE();
 

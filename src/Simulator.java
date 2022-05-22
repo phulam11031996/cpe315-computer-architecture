@@ -7,7 +7,6 @@ import java.util.Scanner;
 
 public class Simulator extends Emulator {
 
-    // data
     private int cycles = 4;
     private int numInsts = 0;
     private int squashFlag = 0;
@@ -23,8 +22,8 @@ public class Simulator extends Emulator {
     private Inst squInst = new Inst("squash", null, null, null, null, null, null, null, null);
 
     // constructor
-    public Simulator(String fileName) {
-        super(fileName);
+    public Simulator(String fileName, int ghrBits) {
+        super(fileName, ghrBits);
         this.initS();
     }
 
@@ -127,9 +126,9 @@ public class Simulator extends Emulator {
             this.numInsts += 1;
             this.cycles += 1;
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     private boolean stallStep() {
@@ -185,6 +184,7 @@ public class Simulator extends Emulator {
             this.squashFlag = 1;
             this.cycles += 1;
         }
+
         return true;
     }
 
@@ -220,6 +220,7 @@ public class Simulator extends Emulator {
     }
 
     private boolean nextPrint(String[] data) {
+
         if (Objects.equals(data[0], "h"))
             this.hS();
 
