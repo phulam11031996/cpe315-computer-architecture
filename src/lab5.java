@@ -1,5 +1,5 @@
 // Section: 1 ( 8:10 AM in the morning )
-// Names: Phu & Rohit
+// Names: Phu
 
 public class lab5 {
 
