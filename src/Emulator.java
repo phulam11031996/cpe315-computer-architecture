@@ -5,18 +5,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 
-abstract class Emulator extends Parser {
+class Emulator extends Parser {
     // data
     protected int pc;
     protected int[] dataMem;
     protected Inst currInst = null;
+    BranchPredictor br;
 
     private HashMap<String, Integer> reg = new HashMap<>();
 
     // constructor
-    public Emulator(String filename) {
+    public Emulator(String filename,int bits) {
         super(filename);
         this.init();
+        this.br = new BranchPredictor(bits);
     }
 
     protected void init() {
@@ -132,16 +134,26 @@ abstract class Emulator extends Parser {
                     this.pc++;
                     break;
                 case "bne":
-                    if (!Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2])))
+                    int taken = this.br.predict();
+                    if (!Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2]))) {
                         this.pc = labAdds.get(currInst[3]);
-                    else
+                        this.br.learn(taken,1);
+                    }
+                    else {
                         this.pc++;
+                        this.br.learn(taken,0);
+                    }
                     break;
                 case "beq":
-                    if (Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2])))
+                    int taken2 = this.br.predict();
+                    if (Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2]))) {
                         this.pc = labAdds.get(currInst[3]);
-                    else
+                        this.br.learn(taken2,1);
+                    }
+                    else {
                         this.pc++;
+                        this.br.learn(taken2,0);
+                    }
                     break;
                 case "jal":
                     this.reg.put("$ra", this.pc + 1);
@@ -265,5 +277,7 @@ abstract class Emulator extends Parser {
         }
         myObj.close();
     }
+
+    //make script mode for lab 5
 
 }
