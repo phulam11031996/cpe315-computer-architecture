@@ -17,17 +17,10 @@ class Emulator extends Parser {
     protected Predictor predictor;
 
     // constructor
-<<<<<<< HEAD
     public Emulator(String filename, int ghrBits) {
         super(filename);
         this.init();
         this.predictor = new Predictor(ghrBits);
-=======
-    public Emulator(String filename,int bits) {
-        super(filename);
-        this.init();
-        this.br = new BranchPredictor(bits);
->>>>>>> refs/remotes/origin/main
     }
 
     protected void init() {
@@ -144,7 +137,6 @@ class Emulator extends Parser {
                     this.pc++;
                     break;
                 case "bne":
-<<<<<<< HEAD
                     if (!Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2]))) {
                         this.pc = labAdds.get(currInst[3]);
                         
@@ -172,27 +164,6 @@ class Emulator extends Parser {
                         if (this.predictor.getPre() == 0)
                             this.predictor.increWrongPre();
                         this.predictor.updatePre(0);
-=======
-                    int taken = this.br.predict();
-                    if (!Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2]))) {
-                        this.pc = labAdds.get(currInst[3]);
-                        this.br.learn(taken,1);
-                    }
-                    else {
-                        this.pc++;
-                        this.br.learn(taken,0);
-                    }
-                    break;
-                case "beq":
-                    int taken2 = this.br.predict();
-                    if (Objects.equals(this.reg.get(currInst[1]), this.reg.get(currInst[2]))) {
-                        this.pc = labAdds.get(currInst[3]);
-                        this.br.learn(taken2,1);
-                    }
-                    else {
-                        this.pc++;
-                        this.br.learn(taken2,0);
->>>>>>> refs/remotes/origin/main
                     }
                     break;
                 case "jal":
