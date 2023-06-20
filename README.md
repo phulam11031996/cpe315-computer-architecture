@@ -1,3 +1,2 @@
-cpe315 - lab 2-6
-
-note: lab 2-5 can't run because don't have the testing files
+# cpe315-computer-architechture
+Hi. If you are currently a Cal Poly student or will transfer to Cal Poly please don't read this.
